@@ -46,4 +46,4 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name: Build with Maven
-        run: mvn -B package --file witt/pom.xml
+        run: mvn -B package --file witt_project/pom.xml
