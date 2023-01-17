@@ -1,0 +1,67 @@
+<div th:fragment = "witt-post-list">
+	<div th:each="witt_post: ${witt_posts}">
+		<div class="m-5 card" style="width: 18rem;">
+			<img class="card-img-top" th:src="@{${'/images/' + witt_post.imagePath}}" alt="WITT post image">
+			<div class="card-body">
+				<h5 class="card-title" th:text="${witt_post.title}" />
+				<p class="card-text" th:text="${witt_post.description}" />
+				<a th:href="@{/show-post/{id}(id=${witt_post.id})}" class="btn btn-primary">View post</a>
+	 		</div>
+	 		<div class="card-footer">
+      			<small class="text-muted" th:text="${#temporals.format(witt_post.savedAt, 'dd-MM-yyyy, HH:mm')}"></small>
+    		</div>
+		</div>
+	</div>
+</div>
+
+<div th:fragment = "witt-post-display">
+	<div class="m-5 card" style="width: 18rem;">
+		<img class="card-img-top" th:src="@{${'/images/' + witt_post.imagePath}}" alt="WITT post image">
+		<div class="card-body">
+			<h5 class="card-title" th:text="${witt_post.title}" />
+			<p class="card-text" th:text="${witt_post.description}" />
+			<form action="#" th:action="@{/edit-post}" th:object="${witt_post}" method="post">
+				<input type="hidden" th:value="${witt_post.id}" name="id"/>
+				<button type="submit" class="btn btn-warning">Update post</button>
+			</form>
+			<form action="#" th:action="@{/delete-post}" th:object="${witt_post}" method="post">
+				<input type="hidden" th:value="${witt_post.id}" name="id"/>
+				<input type="hidden" th:value="old" name="type"/>
+
+				<button type="submit" class="btn btn-danger">Delete Post!</button>
+			</form>
+ 		</div>
+ 		<div class="card-footer">
+  			<small class="text-muted" th:text="${#temporals.format(witt_post.savedAt, 'dd-MM-yyyy, HH:mm')}"></small>
+		</div>
+	</div>
+</div>
+
+<div th:fragment="new-update-post">
+	<div class="d-flex justify-content-center flex-nowrap">
+		<div class="p-5 w-50 m-5 bg-light rounded-3">
+			<div class="container-fluid py-5">
+				<h1 th:if="${isNew}">What are you looking to identify ?</h1>
+			    <h1 th:if="${isEdit}">Updating post</h1>
+				<form action="#" th:action="@{/store-post}" th:object="${witt_post}" method="post">
+					<div th:if="${isEdit}" class="form-group">   
+				    	<input type="hidden"  class="form-control" th:required="required" readonly th:field="*{id}" />
+				    </div>
+					<div class="form-group">
+						<label for="title" th:text="Title"/>
+						<input type="text" class="form-control" th:required="required" th:field="*{title}" />		
+					</div>
+					<div class="form-group">
+						<label for="description" th:text="Description"/>
+						<textarea rows="5" cols="60" class="form-control" th:required="required" th:field="*{description}" />
+					</div>
+				    <input type="hidden" name="imagePath"  th:value="otter.jpg" />
+				    <input type="hidden" th:value="0" name="id"/>
+				    <input type="hidden" name="type" th:if="${isNew}" th:value="new" />
+					<input type="hidden" name="type" th:if="${isEdit}" th:value="edit" />
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
