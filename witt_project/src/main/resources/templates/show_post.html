@@ -8,9 +8,8 @@
 </head>
 
 <body>
-  	<div class="d-flex justify-content-center flex-nowrap">
-		<h1> WITT - What Is This Thing</h1>
-  	</div>
+	<div th:replace="fragments/header :: header"></div>	
+
   	<div class="d-flex justify-content-center flex-nowrap">
 		<div th:replace="fragments/witt_post :: witt-post-display"></div>
   	</div>

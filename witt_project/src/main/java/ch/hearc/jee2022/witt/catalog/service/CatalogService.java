@@ -4,6 +4,7 @@ import java.util.List;
 
 import ch.hearc.jee2022.witt.catalog.model.Comment;
 import ch.hearc.jee2022.witt.catalog.model.Post;
+import ch.hearc.jee2022.witt.catalog.model.WITTUser;
 
 public interface CatalogService {
 	
@@ -26,6 +27,10 @@ public interface CatalogService {
 	
 	public void deleteComment(long id);
 	//User
+	public void addUser(WITTUser user);
 	
-	//User Post
+	public WITTUser getUserByName(String name);
+	
+
+	
 }
