@@ -1,0 +1,21 @@
+<div th:fragment = "header">
+  	<div class="d-flex justify-content-center flex-nowrap">
+		<h1> WITT - What Is This Thing</h1>
+  	</div>
+	<div class="d-flex justify-content-center flex-nowrap">
+		<a th:if="${userSession.getAttribute('user')}!=null" class="btn btn-primary" href="/save-post"> New post</a>
+	</div>
+	<div class="d-flex justify-content-center flex-nowrap">
+		<a th:if="${userSession.getAttribute('user')}==null" class="btn btn-primary" href="/login"> Login </a>
+		<a th:if="${userSession.getAttribute('user')}!=null" class="btn btn-primary" href="/logout"> Logout</a>
+	</div>
+	<div class="d-flex justify-content-center flex-nowrap">
+		<a th:if="${userSession.getAttribute('user')}==null" href="/register"> No account ? register now ! </a>
+	</div>
+	<div class="m-5 card" style="width: 18rem;">
+		<img class="card-img-top" src="/images/profile.png" alt="profile picture">
+		<div class="card-body">
+			<h5 class="card-title" th:text="${userSession.getAttribute('username')}" />
+		 </div>
+	</div>	
+</div>

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +27,8 @@ public class Post {
 	private String description;
 	private LocalDateTime savedAt;
 	
-	@OneToMany(mappedBy="post")
+	@OneToMany(mappedBy="post", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
 	private Set<Comment> comments;
 	
 	public List<Comment> getComments() {

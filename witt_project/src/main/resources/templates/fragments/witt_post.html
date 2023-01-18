@@ -22,13 +22,13 @@
 			<p class="card-text" th:text="${witt_post.description}" />
 			<form action="#" th:action="@{/edit-post}" th:object="${witt_post}" method="post">
 				<input type="hidden" th:value="${witt_post.id}" name="id"/>
-				<button type="submit" class="btn btn-warning">Update post</button>
+				<button th:if="${userSession.getAttribute('isAdmin')}== true" type="submit" class="btn btn-warning">Update post</button>
 			</form>
 			<form action="#" th:action="@{/delete-post}" th:object="${witt_post}" method="post">
 				<input type="hidden" th:value="${witt_post.id}" name="id"/>
 				<input type="hidden" th:value="old" name="type"/>
 
-				<button type="submit" class="btn btn-danger">Delete Post!</button>
+				<button th:if="${userSession.getAttribute('isAdmin')}== true" type="submit" class="btn btn-danger">Delete Post!</button>
 			</form>
  		</div>
  		<div class="card-footer">
