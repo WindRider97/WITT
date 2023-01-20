@@ -26,11 +26,23 @@ public class Comment {
 	@JoinColumn(name="post_id", nullable=false)
 	private Post post;
 
+	@ManyToOne
+	@JoinColumn(name="user_id", nullable=true)
+	private WITTUser user;
+	
 	public Comment(String content) {
 
 		this.content = content;
 		this.score = 0;
 		this.savedAt = LocalDateTime.now();
+	}
+
+	public WITTUser getUser() {
+		return user;
+	}
+
+	public void setUser(WITTUser user) {
+		this.user = user;
 	}
 
 	public Comment() {

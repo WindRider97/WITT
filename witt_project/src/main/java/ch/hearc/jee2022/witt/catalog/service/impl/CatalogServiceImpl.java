@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import ch.hearc.jee2022.witt.catalog.model.Comment;
@@ -44,12 +46,23 @@ public class CatalogServiceImpl implements CatalogService {
 		comment2.setPost(post1);
 		comment3.setPost(post1);
 		
-		WITTUser user = new WITTUser("admin", "password", true);
+		WITTUser user1 = new WITTUser("admin", "password", true);
+		WITTUser user2 = new WITTUser("Benjamin", "password1", false);
+		WITTUser user3 = new WITTUser("Guillaume", "password2", false);
+		WITTUser user4 = new WITTUser("GrosTroll", "password3", false);
+		
+		comment1.setUser(user2);
+		comment2.setUser(user4);
+		comment3.setUser(user3);
+		
+		post1.setUser(user2);
+		post2.setUser(user2);
+		post3.setUser(user2);
 
 
+		userRepository.saveAll(Arrays.asList(user1, user2, user3, user4));
 		postRepository.saveAll(Arrays.asList(post1, post2, post3));
 		commentRepository.saveAll(Arrays.asList(comment1, comment2, comment3));
-		userRepository.save(user);
 	}
 
 	@Override
@@ -103,6 +116,13 @@ public class CatalogServiceImpl implements CatalogService {
 	@Override
 	public WITTUser getUserByName(String name) {
 		return userRepository.findByUsername(name);
+	}
+
+	@Override
+	public List<Post> getAllPosts(int pageNumber) {
+		PageRequest paging = PageRequest.of(pageNumber, 1);
+		Page<Post> page = postRepository.findAll(paging);
+		return page.toList();
 	}
 
 

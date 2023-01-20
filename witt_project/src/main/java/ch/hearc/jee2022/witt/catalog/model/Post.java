@@ -12,6 +12,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -31,6 +33,10 @@ public class Post {
             cascade = CascadeType.ALL)
 	private Set<Comment> comments;
 	
+	@ManyToOne
+	@JoinColumn(name="user_id", nullable=true)
+	private WITTUser user;
+	
 	public List<Comment> getComments() {
 		List<Comment> commentList = new ArrayList<Comment>(comments);
 	    commentList.sort((c1,c2)->c2.getSavedAt().compareTo(c1.getSavedAt()));
@@ -41,6 +47,14 @@ public class Post {
 		comments.add(comment);
 	}
 	
+	public WITTUser getUser() {
+		return user;
+	}
+
+	public void setUser(WITTUser user) {
+		this.user = user;
+	}
+
 	public void setComments(Set<Comment> comments) {
 		this.comments = comments;
 	}
