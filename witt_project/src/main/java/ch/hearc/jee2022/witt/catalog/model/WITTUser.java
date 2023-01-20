@@ -1,13 +1,16 @@
 package ch.hearc.jee2022.witt.catalog.model;
 
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,6 +25,29 @@ public class WITTUser {
 	private String password;
 
 	private boolean isAdmin;
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private Set<Post> posts;
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+
+	private Set<Comment> comments;
+	
+	public void addComment(Comment comment) {
+		comments.add(comment);
+	}
+	
+	public void setComments(Set<Comment> comments) {
+		this.comments = comments;
+	}
+	
+	public void addPost(Post post) {
+		posts.add(post);
+	}
+	
+	public void setPost(Set<Post> posts) {
+		this.posts = posts;
+	}
 
 	public long getId() {
 		return id;
@@ -74,7 +100,7 @@ public class WITTUser {
 	}
 
 	public WITTUser(String username, String password, boolean isAdmin) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 		this.username = username;
 		this.password = bCryptPasswordEncoder.encode(password);
@@ -83,4 +109,5 @@ public class WITTUser {
 
 	public WITTUser() {
 	}
+	
 }

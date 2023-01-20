@@ -28,20 +28,42 @@ public class WittController {
 
 	@Autowired
 	HttpSession userSession;
+	
 
 	@GetMapping(value = { "/", "/index" })
 	public String showIndexPage(Model model) {
 		if (startup) {
 			userSession.setAttribute("user", null);
+			userSession.setAttribute("isAdmin", null);
+			userSession.setAttribute("username", null);
 			startup = false;
 			catalogService.startApplication();
+
 		}
 		model.addAttribute("witt_posts", catalogService.getAllPosts());
 		model.addAttribute("witt_post", new Post());
 		model.addAttribute("userSession", userSession);
 
+		return "redirect:/index/0";
+	}
+	
+	@GetMapping(value = {"/index/{pageNumber}"})
+	public String showIndexPage(Model model, @PathVariable int pageNumber) {
+		if (startup) {
+			userSession.setAttribute("user", null);
+			startup = false;
+			catalogService.startApplication();
+		}
+		model.addAttribute("witt_posts", catalogService.getAllPosts(pageNumber));
+		int numberOfPages = catalogService.getAllPosts().size();
+		model.addAttribute("numberOfPages", numberOfPages);
+		model.addAttribute("witt_post", new Post());
+		model.addAttribute("userSession", userSession);
+
 		return "index";
 	}
+	
+	
 
 	// handler method to handle user registration form request
 	@GetMapping("/register")
@@ -76,7 +98,9 @@ public class WittController {
 			return "redirect:/login";
 		}
 
-		if (witt_user.getPassword().equals(user.getPassword())) {
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+		if (bCryptPasswordEncoder.matches(user.getPassword(), witt_user.getPassword())) {
 			userSession.setAttribute("user", witt_user.getId());
 			userSession.setAttribute("isAdmin", witt_user.isAdmin());
 			userSession.setAttribute("username", witt_user.getUsername());
@@ -102,6 +126,9 @@ public class WittController {
 	@PostMapping("/register/store-user")
 	public String registration(@ModelAttribute("wittuser") WITTUser user, BindingResult result, Model model) {
 		model.addAttribute("userSession", userSession);
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		catalogService.addUser(user);
 		return startSession(user, result, model);
 	}
@@ -136,14 +163,17 @@ public class WittController {
 		model.addAttribute("userSession", userSession);
 		if (type.equals("new")) {
 			witt_post.setSavedAt(LocalDateTime.now());
-			catalogService.addPost(witt_post);
-		} else {
+			witt_post.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
 
-			// catalogService.deletePost(witt_post.getId());
+			catalogService.addPost(witt_post);
+			return "redirect:/index";
+		} else {
+			witt_post.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
 			witt_post.setSavedAt(LocalDateTime.now());
 			catalogService.addPost(witt_post);
+			return "redirect:/show-post/"+(witt_post.getId());
 		}
-		return "redirect:/index";
+		
 	}
 
 	@PostMapping(value = "/store-comment")
@@ -154,6 +184,7 @@ public class WittController {
 		model.addAttribute("userSession", userSession);
 		comment.setSavedAt(LocalDateTime.now());
 		comment.setPost(catalogService.getPostById(post_id));
+		comment.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
 		catalogService.addComment(comment);
 
 		return ("redirect:/show-post/" + post_id);

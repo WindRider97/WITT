@@ -16,6 +16,8 @@ public interface CatalogService {
 	
 	public List<Post> getAllPosts();
 	
+	public List<Post> getAllPosts(int pageNumber);
+	
 	public void deletePost(long id);
 	
 	public void updatePost(Post post);
