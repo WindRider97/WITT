@@ -1,8 +1,15 @@
 package ch.hearc.jee2022.witt.catalog.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,11 +19,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import ch.hearc.jee2022.witt.catalog.model.Comment;
 import ch.hearc.jee2022.witt.catalog.model.Post;
 import ch.hearc.jee2022.witt.catalog.model.WITTUser;
 import ch.hearc.jee2022.witt.catalog.service.CatalogService;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -28,7 +38,8 @@ public class WittController {
 
 	@Autowired
 	HttpSession userSession;
-	
+
+	public static String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/images";
 
 	@GetMapping(value = { "/", "/index" })
 	public String showIndexPage(Model model) {
@@ -46,8 +57,8 @@ public class WittController {
 
 		return "redirect:/index/0";
 	}
-	
-	@GetMapping(value = {"/index/{pageNumber}"})
+
+	@GetMapping(value = { "/index/{pageNumber}" })
 	public String showIndexPage(Model model, @PathVariable int pageNumber) {
 		if (startup) {
 			userSession.setAttribute("user", null);
@@ -62,8 +73,6 @@ public class WittController {
 
 		return "index";
 	}
-	
-	
 
 	// handler method to handle user registration form request
 	@GetMapping("/register")
@@ -147,6 +156,24 @@ public class WittController {
 
 	@GetMapping(value = "/show-post/{id}")
 	public String showPost(Model model, @PathVariable("id") int id) {
+		// Path file = Paths.get(UPLOAD_DIRECTORY);
+		// System.out.println(file);
+		// Post post = catalogService.getPostById(id);
+		// file = file.resolve(post.getImagePath());
+		// String filePath = "~/images/" + post.getImagePath();
+		// System.out.println(filePath);
+		// model.addAttribute("img", filePath);
+		// System.out.println(file);
+		// post.setImagePath(file.toString());
+		// model.addAttribute("post_image",file);
+//		try {
+//			UrlResource resource = new UrlResource(file.toUri());
+//			model.addAttribute("post_image",resource);
+//			System.out.println(resource);
+//		} catch (MalformedURLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		model.addAttribute("userSession", userSession);
 		model.addAttribute("witt_post", catalogService.getPostById(id));
 		model.addAttribute("comments", catalogService.getPostById(id).getComments());
@@ -154,26 +181,40 @@ public class WittController {
 		return "show_post";
 	}
 
+//	@GetMapping(value = "/image/{imageName}")
+//	public byte[] getImage(@PathVariable(value = "imageName") String imageName) throws IOException {
+//		File file = new File(UPLOAD_DIRECTORY +"/"+ imageName);
+//		System.out.println(file);
+//		return Files.readAllBytes(file.toPath());
+//	}
+//	
+
 	@PostMapping(value = "/store-post")
-	public String savePost(@ModelAttribute Post witt_post, BindingResult errors, Model model,
-			@RequestParam String type) {
+	public String savePost(@ModelAttribute Post witt_post, BindingResult errors, Model model, @RequestParam String type,
+			@RequestParam("image") MultipartFile file) throws IOException {
 		if (userSession.getAttribute("user") == null) {
 			return "redirect:/index";
 		}
 		model.addAttribute("userSession", userSession);
 		if (type.equals("new")) {
+			StringBuilder fileNames = new StringBuilder();
+			Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, file.getOriginalFilename());
+			fileNames.append(file.getOriginalFilename());
+			Files.write(fileNameAndPath, file.getBytes());
+			witt_post.setImagePath(file.getOriginalFilename());
 			witt_post.setSavedAt(LocalDateTime.now());
-			witt_post.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
+			witt_post.setUser(catalogService.getUserByName((String) userSession.getAttribute("username")));
 
 			catalogService.addPost(witt_post);
 			return "redirect:/index";
 		} else {
-			witt_post.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
+			witt_post.setUser(catalogService.getUserByName((String) userSession.getAttribute("username")));
 			witt_post.setSavedAt(LocalDateTime.now());
 			catalogService.addPost(witt_post);
-			return "redirect:/show-post/"+(witt_post.getId());
+
+			return "redirect:/show-post/" + (witt_post.getId());
 		}
-		
+
 	}
 
 	@PostMapping(value = "/store-comment")
@@ -184,7 +225,7 @@ public class WittController {
 		model.addAttribute("userSession", userSession);
 		comment.setSavedAt(LocalDateTime.now());
 		comment.setPost(catalogService.getPostById(post_id));
-		comment.setUser(catalogService.getUserByName((String)userSession.getAttribute("username")));
+		comment.setUser(catalogService.getUserByName((String) userSession.getAttribute("username")));
 		catalogService.addComment(comment);
 
 		return ("redirect:/show-post/" + post_id);
