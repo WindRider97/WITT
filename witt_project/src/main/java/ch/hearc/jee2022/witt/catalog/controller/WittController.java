@@ -1,15 +1,12 @@
 package ch.hearc.jee2022.witt.catalog.controller;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,14 +16,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.hearc.jee2022.witt.catalog.model.Comment;
 import ch.hearc.jee2022.witt.catalog.model.Post;
 import ch.hearc.jee2022.witt.catalog.model.WITTUser;
 import ch.hearc.jee2022.witt.catalog.service.CatalogService;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -156,38 +151,13 @@ public class WittController {
 
 	@GetMapping(value = "/show-post/{id}")
 	public String showPost(Model model, @PathVariable("id") int id) {
-		// Path file = Paths.get(UPLOAD_DIRECTORY);
-		// System.out.println(file);
-		// Post post = catalogService.getPostById(id);
-		// file = file.resolve(post.getImagePath());
-		// String filePath = "~/images/" + post.getImagePath();
-		// System.out.println(filePath);
-		// model.addAttribute("img", filePath);
-		// System.out.println(file);
-		// post.setImagePath(file.toString());
-		// model.addAttribute("post_image",file);
-//		try {
-//			UrlResource resource = new UrlResource(file.toUri());
-//			model.addAttribute("post_image",resource);
-//			System.out.println(resource);
-//		} catch (MalformedURLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
 		model.addAttribute("userSession", userSession);
 		model.addAttribute("witt_post", catalogService.getPostById(id));
 		model.addAttribute("comments", catalogService.getPostById(id).getComments());
 		model.addAttribute("comment", new Comment());
 		return "show_post";
 	}
-
-//	@GetMapping(value = "/image/{imageName}")
-//	public byte[] getImage(@PathVariable(value = "imageName") String imageName) throws IOException {
-//		File file = new File(UPLOAD_DIRECTORY +"/"+ imageName);
-//		System.out.println(file);
-//		return Files.readAllBytes(file.toPath());
-//	}
-//	
 
 	@PostMapping(value = "/store-post")
 	public String savePost(@ModelAttribute Post witt_post, BindingResult errors, Model model, @RequestParam String type,
